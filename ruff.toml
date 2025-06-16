@@ -1,0 +1,47 @@
+include = ["*.py", "*.pyi", "**/pyproject.toml", "*.ipynb"]
+exclude = [
+    "build",
+    "*/web_client/*",
+    "*/*egg*/*",
+]
+lint.ignore = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D107",
+    "D200",
+    "D203",
+    "D205",
+    "D212",
+]
+line-length = 100
+lint.select = [
+    "B",  # bugbear
+    "C90",  # mccabe
+    "D",  # pydocstyle
+    "E",  # pycodestyle errors
+    "F",  # pyflakes
+    "Q",  # flake8-quotes
+    # "I",  # isort
+    "W",  # pycodestyle warnings
+    "YTT",
+    "ASYNC",
+    "COM",
+    "C4",
+    "EM",
+    "EXE",
+    "ISC",
+    "G",
+    "PIE",
+    # "PYI",
+    "PT",
+    "RSE",
+]
+
+[lint.flake8-quotes]
+inline-quotes = "single"
+
+[lint.mccabe]
+max-complexity = 14
