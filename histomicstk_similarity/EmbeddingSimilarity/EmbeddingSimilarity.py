@@ -176,7 +176,7 @@ def find_focus(
     :returns: the index offset values in x, y, and the pixel coordinates in x,
         y of the key point that will actually be used.
     """
-    tx = ty = 0
+    tx = ty = -1
     ti = tj = 0
     for j in range(embeds['data'].shape[0] - agg):
         y = int((j + agg * 0.5) * embeds['stride'] + embeds['tilesize'] // 2)

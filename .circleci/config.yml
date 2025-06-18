@@ -11,7 +11,7 @@ jobs:
           command: pip install tox
       - run:
           name: Run Tox
-          command: tox -e py311
+          command: tox -e py311,lint,type
   publish_docker:
     working_directory: ~/project
     machine:

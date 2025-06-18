@@ -170,5 +170,5 @@ class TestModel(EmbeddingModel):
         # of each bin, using those as our feature.  This is not intended to be
         # useful except for testing.
         return np.array([
-            np.std(img.reshape(16, 14, 16, 14, 3), axis=(1, 3)).flatten()
+            np.std(img[:, :, :3].reshape(16, 14, 16, 14, 3), axis=(1, 3)).flatten()
             for img in imgs])
