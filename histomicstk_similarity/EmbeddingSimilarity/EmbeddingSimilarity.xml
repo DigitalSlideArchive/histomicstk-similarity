@@ -7,6 +7,7 @@
   <documentation-url>https://digitalslidearchive.github.io/HistomicsTK</documentation-url>
   <license>Apache 2.0</license>
   <contributor>David Manthey (Kitware Inc)</contributor>
+  <acknowledgements>This work is part of the HistomicsTK project.</acknowledgements>
   <parameters>
     <label>Inputs</label>
     <description>Input parameters</description>
@@ -84,6 +85,7 @@
       <element>UNI</element>
       <element>DinoV2Large</element>
       <element>Midnight</element>
+      <element>Test</element>
     </string-enumeration>
     <integer>
       <name>tilesize</name>

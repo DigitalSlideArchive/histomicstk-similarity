@@ -1,6 +1,17 @@
 version: 2
 
 jobs:
+  py311:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+      - run:
+          name: Install Tox
+          command: pip install tox
+      - run:
+          name: Run Tox
+          command: tox -e py311
   publish_docker:
     working_directory: ~/project
     machine:
@@ -22,10 +33,18 @@ jobs:
 
 workflows:
   version: 2
-
   ci:
     jobs:
+      - py311:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore:
+                - gh-pages
       - publish_docker:
+          requires:
+            - py311
           filters:
             tags:
               only: /^v.*/
