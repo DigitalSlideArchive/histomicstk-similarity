@@ -117,7 +117,7 @@ def generate_embedding(args: argparse.Namespace) -> EmbeddingDict:
     if not ts.metadata['magnification'] or ts.metadata['magnification'] < 1.5:
         # Assume the metadata is wrong and that we are actually a 20x scale
         # image
-        scale = 1. / mag
+        scale = 20. / mag
         scaleParam = {'output': {'maxWidth': round(ts.sizeX * scale),
                                  'maxHeight': round(ts.sizeY * scale)}}
     with torch.no_grad():
@@ -241,11 +241,8 @@ def calculate_similarity(embeds: EmbeddingDict, args: argparse.Namespace) -> Non
     data = data / norms
     match = data[tj][ti]
     print(f'Normalized: {time.time() - start:5.3f}s elapsed')
-    print(match)
     similarity = np.sum(data * match, axis=-1)
-    print(similarity[tj][ti])
     similarity = np.clip((similarity - args.threshold) / (1 - args.threshold), 0, 1)
-    print(similarity[tj][ti])
     print(f'Similarity: {time.time() - start:5.3f}s elapsed')
     points: list[list[float]] = []
     for j in range(similarity.shape[0]):
@@ -307,6 +304,7 @@ def main(args):
     # If we are in an isolated girder job, don't output the input file
     if args.imageid and not args.image or args.embedin and args.embedin == args.embedout:
         os.unlink(args.embedout)
+    return True
 
 
 if __name__ == '__main__':

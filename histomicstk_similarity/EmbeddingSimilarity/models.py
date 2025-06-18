@@ -19,6 +19,8 @@ class EmbeddingModelMeta(abc.ABCMeta):
 
 class EmbeddingModel(metaclass=EmbeddingModelMeta):
     """
+    Embedding model base.
+
     Our embedding model class needs to create any overall variables in its
     init method and process images in a infer method.
     """
@@ -71,6 +73,8 @@ class GigapathModel(EmbeddingModel):
 
 class UNIModel(EmbeddingModel):
     """
+    MahmoodLab/UNI model.
+
     MahmoodLab/UNI has specific license requirements; please make sure you
     honor them.  It cannot be used commercially without approval.
     """
@@ -149,3 +153,22 @@ class MidnightModel(EmbeddingModel):
         cls_embedding, patch_embeddings = results[:, 0, :], results[:, 1:, :]
         results = torch.cat([cls_embedding, patch_embeddings.mean(1)], dim=-1)
         return results.to('cpu').numpy()
+
+
+class TestModel(EmbeddingModel):
+    """
+    A simple test model.
+
+    This just bins images and takes the standard deviation of each bin.  It is
+    here so fast tests can be done without a gpu.
+    """
+
+    model_name = 'test'
+
+    def infer(self, imgs: list[np.ndarray]) -> np.ndarray:
+        # bin each image into (16, 16, 3) bins and find the standard deviation
+        # of each bin, using those as our feature.  This is not intended to be
+        # useful except for testing.
+        return np.array([
+            np.std(img.reshape(16, 14, 16, 14, 3), axis=(1, 3)).flatten()
+            for img in imgs])
