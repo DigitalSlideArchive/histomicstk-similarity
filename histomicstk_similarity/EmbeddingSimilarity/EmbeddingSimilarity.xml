@@ -102,9 +102,16 @@
       <default>112</default>
     </integer>
     <double>
+      <name>scale_um</name>
+      <longflag>scale_um</longflag>
+      <description>Pixel scale in microns for tile sizes to send to the model.  0 for the default for model.</description>
+      <label>Scale</label>
+      <default>0</default>
+    </double>
+    <double>
       <name>magnification</name>
       <longflag>magnification</longflag>
-      <description>Magnification for tile sizes to send to the model.  0 for the default for model.</description>
+      <description>Magnification for tile sizes to send to the model.  0 for the default for model.  If scale is non-zero, this is ignored.</description>
       <label>Magnification</label>
       <default>0</default>
     </double>

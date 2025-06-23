@@ -82,6 +82,11 @@ def generate_embedding(args: argparse.Namespace) -> EmbeddingDict:
         :param args.batch: batch size for inference.  This will affect how much
             base and GPU memory is used.
         :type args.batch: int
+        :param args.scale_um: image scale in microns used for inference.  If 0,
+            the model's preferred scale is used.  If the source image does not
+            include scale metadata or this is unspecified and a non-zero
+            magnification is given, magnification is used.
+        :type args.scale_um: float
         :param args.magnification: image magnification level used for
             inference.  If 0, the model's preferred magnification is used.  If
             the source image does not include magnification metadata, it is
@@ -111,19 +116,25 @@ def generate_embedding(args: argparse.Namespace) -> EmbeddingDict:
     batchcoor: list[tuple[int, int]] = []
     if args.batch < 1:
         args.batch = 1
-    mag = model.magnification if args.magnification <= 0 else args.magnification
-    scale = (ts.metadata['magnification'] or 20) / mag
-    scaleParam = {'scale': {'magnification': mag}}
-    if not ts.metadata['magnification'] or ts.metadata['magnification'] < 1.5:
-        # Assume the metadata is wrong and that we are actually a 20x scale
-        # image
-        scale = 20. / mag
-        scaleParam = {'output': {'maxWidth': round(ts.sizeX * scale),
-                                 'maxHeight': round(ts.sizeY * scale)}}
+    um = model.scale_um if args.scale_um <= 0 else args.scale_um
+    if ts.metadata.get('mm_x') and um:
+        scale = ts.metadata['mm_x'] / um
+        scaleParam = {'scale': {'mm_x': um * 0.001, 'mm_y': um * 0.001}}
+    else:
+        mag = model.magnification if args.magnification <= 0 else args.magnification
+        scale = (ts.metadata['magnification'] or 20) / mag
+        scaleParam = {'scale': {'magnification': mag}}
+        if not ts.metadata['magnification'] or ts.metadata['magnification'] < 1.5:
+            # Assume the metadata is wrong and that we are actually a 20x scale
+            # image
+            scale = 20. / mag
+            scaleParam = {'output': {'maxWidth': round(ts.sizeX * scale),
+                                     'maxHeight': round(ts.sizeY * scale)}}
     with torch.no_grad():
         for tile in tqdm.tqdm(ts.tileIterator(
             tile_size={'width': args.tilesize, 'height': args.tilesize},
             tile_overlap={'x': args.tilesize - args.stride, 'y': args.tilesize - args.stride},
+            resample=True,
             format=large_image.constants.TILE_FORMAT_NUMPY,
             **scaleParam,
         ), mininterval=1 if os.isatty(sys.stdout.fileno()) else 30):
