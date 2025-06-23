@@ -27,6 +27,8 @@ class EmbeddingModel(metaclass=EmbeddingModelMeta):
 
     # required image size
     patch = 224
+    # default scale in microns
+    scale_um = 0.5
     # default magnification
     magnification = 20
     # define model name in the subclasses
@@ -109,6 +111,7 @@ class UNIModel(EmbeddingModel):
 
 class DinoV2LargeModel(EmbeddingModel):
     model_name = 'facebook/dinov2-large'
+    scale_um = 0
 
     def __init__(self):
         import torch
