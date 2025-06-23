@@ -124,6 +124,7 @@ class DinoV2LargeModel(EmbeddingModel):
     def infer(self, imgs: list[np.ndarray]) -> np.ndarray:
         import torch
 
+        imgs = [np.copy(img) if not img.flags['WRITEABLE'] else img for img in imgs]
         imgstensor = torch.stack([torch.from_numpy(img[:, :, :3]) for img in imgs])
         inputs = self.processor(images=imgstensor, return_tensors='pt').to(self.device)
         results = self.model(**inputs)

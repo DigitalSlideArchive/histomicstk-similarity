@@ -118,7 +118,7 @@ def generate_embedding(args: argparse.Namespace) -> EmbeddingDict:
         args.batch = 1
     um = model.scale_um if args.scale_um <= 0 else args.scale_um
     if ts.metadata.get('mm_x') and um:
-        scale = ts.metadata['mm_x'] / um
+        scale = (um * 0.001) / ts.metadata['mm_x']
         scaleParam = {'scale': {'mm_x': um * 0.001, 'mm_y': um * 0.001}}
     else:
         mag = model.magnification if args.magnification <= 0 else args.magnification
@@ -130,7 +130,7 @@ def generate_embedding(args: argparse.Namespace) -> EmbeddingDict:
             scale = 20. / mag
             scaleParam = {'output': {'maxWidth': round(ts.sizeX * scale),
                                      'maxHeight': round(ts.sizeY * scale)}}
-    with torch.no_grad():
+    with torch.no_grad(), torch.amp.autocast('cuda' if torch.cuda.is_available() else 'cpu'):
         for tile in tqdm.tqdm(ts.tileIterator(
             tile_size={'width': args.tilesize, 'height': args.tilesize},
             tile_overlap={'x': args.tilesize - args.stride, 'y': args.tilesize - args.stride},
