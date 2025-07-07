@@ -311,7 +311,8 @@ def main(args):
             k: loaded[k].item() if loaded[k].ndim == 0 else loaded[k] for k in loaded.files})
         print(f'Load time: {time.time() - start:5.3f}s')
     print(f'Data shape {embeds["data"].shape}')
-    calculate_similarity(embeds, args)
+    if args.keypoint[0] != -1 or args.keypoint[1] != -1:
+        calculate_similarity(embeds, args)
     # If we are in an isolated girder job, don't output the input file
     if args.imageid and not args.image or args.embedin and args.embedin == args.embedout:
         os.unlink(args.embedout)

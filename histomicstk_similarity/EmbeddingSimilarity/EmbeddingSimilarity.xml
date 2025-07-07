@@ -46,7 +46,7 @@
       <name>keypoint</name>
       <label>Key Point</label>
       <longflag>keypoint</longflag>
-      <description>Key point for the similarity.</description>
+      <description>Key point for the similarity.  If -1,-1, no annotation is made or updated</description>
       <default>-1,-1</default>
     </region>
     <integer>
