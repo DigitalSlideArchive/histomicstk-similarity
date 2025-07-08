@@ -54,7 +54,7 @@
       <longflag>aggregate</longflag>
       <description>Number of patches to aggregate before comparison.  Larger values will, in theory, find larger features.</description>
       <label>Aggregation</label>
-      <default>5</default>
+      <default>3</default>
     </integer>
     <double>
       <name>threshold</name>
