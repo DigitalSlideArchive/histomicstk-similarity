@@ -26,6 +26,12 @@ This assumes you have an instance of Digital Slide Archive and have installed th
 
 - Click "Submit".  The heatmap will update after a few seconds.
 
+Example
+-------
+
+.. image:: docs/similarity_demo.gif
+   :alt: Example use of Similarity Tool
+
 Installation
 ------------
 
