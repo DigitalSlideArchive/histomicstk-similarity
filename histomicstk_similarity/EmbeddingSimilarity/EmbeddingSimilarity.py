@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import pathlib
 import pprint
 import sys
 import time
@@ -276,6 +277,12 @@ def calculate_similarity(embeds: EmbeddingDict, args: argparse.Namespace) -> Non
     }
     annot = {
         'name': f'Heatmap {tx}, {ty}',
+        'attributes': {
+            'params': {k: v.split('/')[-1] if isinstance(v, str) else v
+                       for k, v in vars(args).items() if v and 'girder' not in k},
+            'cli': pathlib.Path(__file__).stem,
+            'found': len(points),
+        },
         'elements': [heatmap],
     }
     print(f'Heatmap: {time.time() - start:5.3f}s elapsed')
