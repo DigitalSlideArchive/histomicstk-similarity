@@ -39,7 +39,7 @@
       <name>annotationid</name>
       <longflag>annotation</longflag>
       <label>Annotation ID</label>
-      <description>If specified, this annotation will be modified.  If unspecified, a new annotation will be created</description>
+      <description>If specified, this annotation will be modified.  If unspecified, a new annotation will be created.  This can either be a 24-hex-digit ID or a prefix for an annotation</description>
       <default></default>
     </string>
     <region shapes="point,submitoff">
@@ -118,7 +118,7 @@
     <integer>
       <name>batch</name>
       <longflag>batch</longflag>
-      <description>Batch size for sending data to torch.  If this is too large, the job will ask for use more memory than the GPU has.</description>
+      <description>Batch size for sending data to torch.  If this is too large, the job will ask for more memory than the GPU has.</description>
       <label>Batch Size</label>
       <default>16</default>
     </integer>

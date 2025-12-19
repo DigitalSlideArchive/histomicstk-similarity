@@ -3,6 +3,7 @@ import json
 import os
 import pathlib
 import pprint
+import re
 import sys
 import time
 from typing import TypedDict, cast
@@ -201,7 +202,7 @@ def find_focus(
     return ti, tj, tx, ty
 
 
-def calculate_similarity(embeds: EmbeddingDict, args: argparse.Namespace) -> None:
+def calculate_similarity(embeds: EmbeddingDict, args: argparse.Namespace) -> None:  # noqa
     """
     Calculate similarity across an image and generate a heatmap based on a set
     of pre-calculated feature embeddings.
@@ -230,9 +231,10 @@ def calculate_similarity(embeds: EmbeddingDict, args: argparse.Namespace) -> Non
         :param args.girderToken: if specified, this is used to authenticate
             any uploads to girder.
         :type args.girderToken: str | None
-        :param args.annotationid: if specified, a girder annotation id.  If
-            uploading to girder, this annotation will be updated (replaced)
-            with the new heatmap.
+        :param args.annotationid: if specified, a girder annotation id OR a
+            prefix to find an annotation and add to a new annotation if none
+            found.  If uploading to girder, this annotation will be updated
+            (replaced) with the new heatmap.
         :type args.annotationid: str | None
         :param args.imageid: if specified, a girder image item id.  If
             uploading to girder and an annotationid is not specified, the
@@ -276,7 +278,7 @@ def calculate_similarity(embeds: EmbeddingDict, args: argparse.Namespace) -> Non
         'colorRange': ['rgba(0, 0, 0, 0)', args.color.strip() or '#FFFF00'],
     }
     annot = {
-        'name': f'Heatmap {tx}, {ty}',
+        'name': f'Heatmap {tx}, {ty} - {args.threshold}',
         'attributes': {
             'params': {k: v.split('/')[-1] if isinstance(v, str) else v
                        for k, v in vars(args).items() if v and 'girder' not in k},
@@ -285,19 +287,36 @@ def calculate_similarity(embeds: EmbeddingDict, args: argparse.Namespace) -> Non
         },
         'elements': [heatmap],
     }
+    annotPrefix = None
+    if args.annotationid and not re.match(r'^[0-9a-fA-F]{24}$', args.annotationid.strip()):
+        annotPrefix = args.annotationid.strip()
+        args.annotationid = None
+        if annotPrefix:
+            annot['name'] = annotPrefix + ' ' + \
+                annot['name'].split(None, 1)[1]  # type: ignore[attr-defined]
     print(f'Heatmap: {time.time() - start:5.3f}s elapsed')
     if args.girderApiUrl:
         import girder_client
 
         gc = girder_client.GirderClient(apiUrl=args.girderApiUrl)
         gc.token = args.girderToken
-        if args.annotationid:
-            gc.put(f'annotation/{args.annotationid.strip()}', data=json.dumps(annot))
-        else:
+        itemId = None
+        if args.imageid:
             try:
                 itemId = gc.get(f'file/{args.imageid}')['itemId']
             except Exception:
                 itemId = gc.get(f'item/{args.imageid}')['_id']
+        if annotPrefix and itemId:
+            annotList = gc.get('annotation', parameters={
+                'limit': 10000, 'sort': 'created', 'sortdir': -1, 'itemId': itemId})
+            for entry in annotList:
+                if (entry['annotation']['name'] == annotPrefix or
+                        entry['annotation']['name'].startswith(annotPrefix + ' ')):
+                    args.annotationid = entry['_id']
+                    break
+        if args.annotationid:
+            gc.put(f'annotation/{args.annotationid.strip()}', data=json.dumps(annot))
+        else:
             gc.post(f'annotation/item/{itemId}', data=json.dumps(annot))
     else:
         print(json.dumps(heatmap))
